@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>360° Angle Offset Calculator (90° &amp; 45°)</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --panel-2: #162033;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+      --accent-90: #38bdf8;
+      --accent-45: #f59e0b;
+      --start-ring: #34d399;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      padding: 24px 16px 48px;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .controls {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 1rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent-90);
+      cursor: pointer;
+    }
+
+    .dir-toggle {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover {
+      border-color: #64748b;
+    }
+
+    button.active {
+      background: #0ea5e9;
+      border-color: #38bdf8;
+      color: #082f49;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(280px, 400px) 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 760px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .svg-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    svg {
+      width: 100%;
+      max-width: 360px;
+      height: auto;
+      overflow: visible;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .line-sample-solid {
+      width: 22px;
+      height: 0;
+      border-top: 2.5px solid var(--accent-90);
+    }
+
+    .line-sample-dotted {
+      width: 22px;
+      height: 0;
+      border-top: 2.5px dotted var(--accent-45);
+    }
+
+    .groups {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .badge-90 {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.16);
+      color: var(--accent-90);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+
+    .badge-45 {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.16);
+      color: var(--accent-45);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .angle-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .angle-chip {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .angle-val {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .angle-meta {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .copy-row {
+      margin-top: 10px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .copy-btn {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+    }
+
+    .status-note {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>360° Angle Offset Calculator</h1>
+      <p class="subtitle">
+        Enter any starting degree to see four 90° angles (solid 180° lines) and four separate 45° offset angles (dotted 180° lines).
+      </p>
+    </header>
+
+    <section class="controls" aria-label="Angle Controls">
+      <div class="control-group">
+        <label for="angleInput">Starting Angle (any degree)</label>
+        <div class="input-row">
+          <input id="angleInput" type="number" step="any" value="67" />
+        </div>
+        <div class="status-note" id="normReadout">Normalized: 67°</div>
+      </div>
+
+      <div class="control-group">
+        <label for="angleSlider">Quick Scrub (0° – 360°)</label>
+        <input id="angleSlider" type="range" min="0" max="360" step="0.5" value="67" />
+        <div class="status-note">Click or hover circle points to inspect</div>
+      </div>
+
+      <div class="control-group">
+        <label>Step Direction</label>
+        <div class="dir-toggle">
+          <button id="cwBtn" class="active" type="button" aria-pressed="true">Clockwise (+)</button>
+          <button id="ccwBtn" type="button" aria-pressed="false">Counter-CW (−)</button>
+        </div>
+      </div>
+    </section>
+
+    <main class="grid">
+      <section class="card svg-wrap" aria-label="360 Degree Circle Diagram">
+        <svg id="circleSvg" viewBox="-170 -170 340 340" role="img" aria-label="Circle showing 180-degree opposite lines for 90-degree and 45-degree angle groups">
+          <circle cx="0" cy="0" r="120" fill="none" stroke="#334155" stroke-width="2" />
+          <circle cx="0" cy="0" r="3" fill="#94a3b8" />
+          <g id="oppositeLinesLayer"></g>
+          <g id="ticksLayer"></g>
+          <g id="pointsLayer"></g>
+        </svg>
+
+        <div class="legend">
+          <span class="legend-item"><span class="line-sample-solid"></span>90° group (180° solid)</span>
+          <span class="legend-item"><span class="line-sample-dotted"></span>45° group (180° dotted)</span>
+        </div>
+      </section>
+
+      <section class="groups">
+        <div class="card">
+          <h2>
+            <span>90° Angles</span>
+            <span class="badge-90">4 angles · Solid lines</span>
+          </h2>
+          <div class="angle-list" id="list90"></div>
+          <div class="copy-row">
+            <button class="copy-btn" id="copy90" type="button">Copy 90° Angles</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>
+            <span>45° Offset Angles (Excl. 90°)</span>
+            <span class="badge-45">4 angles · Dotted lines</span>
+          </h2>
+          <div class="angle-list" id="list45"></div>
+          <div class="copy-row">
+            <button class="copy-btn" id="copy45" type="button">Copy 45° Angles</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const angleInput = document.getElementById("angleInput");
+    const angleSlider = document.getElementById("angleSlider");
+    const cwBtn = document.getElementById("cwBtn");
+    const ccwBtn = document.getElementById("ccwBtn");
+    const normReadout = document.getElementById("normReadout");
+    const oppositeLinesLayer = document.getElementById("oppositeLinesLayer");
+    const ticksLayer = document.getElementById("ticksLayer");
+    const pointsLayer = document.getElementById("pointsLayer");
+    const list90 = document.getElementById("list90");
+    const list45 = document.getElementById("list45");
+    const copy90 = document.getElementById("copy90");
+    const copy45 = document.getElementById("copy45");
+
+    let rawAngle = 67;
+    let sign = 1; // 1 for clockwise (+), -1 for counter-clockwise (-)
+
+    function mod360(deg) {
+      const m = ((deg % 360) + 360) % 360;
+      return Object.is(m, -0) ? 0 : m;
+    }
+
+    function fmtDeg(deg) {
+      const rounded = Math.round(deg * 100) / 100;
+      return `${rounded}°`;
+    }
+
+    // Polar conversion: 0° at top (12 o'clock), increasing clockwise for intuitive compass/clock reading
+    function polarToXY(deg, radius) {
+      const rad = ((deg - 90) * Math.PI) / 180;
+      return {
+        x: Math.cos(rad) * radius,
+        y: Math.sin(rad) * radius
+      };
+    }
+
+    function computeAngles() {
+      const base = mod360(Number.isFinite(rawAngle) ? rawAngle : 0);
+
+      // 4 angles spaced by 90°
+      const group90 = [0, 90, 180, 270].map((step, idx) => ({
+        angle: mod360(base + sign * step),
+        stepLabel: idx === 0 ? "Start (0°)" : `${sign > 0 ? "+" : "-"}${step}°`
+      }));
+
+      // 4 angles spaced by 45°, excluding the 90° multiples (45, 135, 225, 315)
+      const group45 = [45, 135, 225, 315].map((step) => ({
+        angle: mod360(base + sign * step),
+        stepLabel: `${sign > 0 ? "+" : "-"}${step}°`
+      }));
+
+      return { base, group90, group45 };
+    }
+
+    function renderTicks() {
+      ticksLayer.innerHTML = "";
+      for (let d = 0; d < 360; d += 15) {
+        const inner = polarToXY(d, d % 45 === 0 ? 114 : 117);
+        const outer = polarToXY(d, 120);
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", inner.x);
+        line.setAttribute("y1", inner.y);
+        line.setAttribute("x2", outer.x);
+        line.setAttribute("y2", outer.y);
+        line.setAttribute("stroke", d % 90 === 0 ? "#64748b" : "#334155");
+        line.setAttribute("stroke-width", d % 90 === 0 ? "1.8" : "1");
+        ticksLayer.appendChild(line);
+      }
+    }
+
+    function createOppositeLine(a, b, stroke, dashArray) {
+      const p1 = polarToXY(a.angle, 120);
+      const p2 = polarToXY(b.angle, 120);
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", p1.x);
+      line.setAttribute("y1", p1.y);
+      line.setAttribute("x2", p2.x);
+      line.setAttribute("y2", p2.y);
+      line.setAttribute("stroke", stroke);
+      line.setAttribute("stroke-width", "2");
+      if (dashArray) {
+        line.setAttribute("stroke-dasharray", dashArray);
+      }
+      return line;
+    }
+
+    function render() {
+      const { base, group90, group45 } = computeAngles();
+      normReadout.textContent = `Normalized start: ${fmtDeg(base)}`;
+      angleSlider.value = base;
+
+      // 180°-opposite connecting lines:
+      // 90° group pairs: index 0 <-> 2 (180° apart), index 1 <-> 3 (180° apart) -> solid lines
+      // 45° group pairs: index 0 <-> 2 (180° apart), index 1 <-> 3 (180° apart) -> dotted lines
+      oppositeLinesLayer.innerHTML = "";
+      oppositeLinesLayer.appendChild(createOppositeLine(group90[0], group90[2], "#38bdf8", null));
+      oppositeLinesLayer.appendChild(createOppositeLine(group90[1], group90[3], "#38bdf8", null));
+      oppositeLinesLayer.appendChild(createOppositeLine(group45[0], group45[2], "#f59e0b", "2 5"));
+      oppositeLinesLayer.appendChild(createOppositeLine(group45[1], group45[3], "#f59e0b", "2 5"));
+
+      // Render points and labels
+      pointsLayer.innerHTML = "";
+      const allPoints = [
+        ...group90.map((item, i) => ({ ...item, type: "90", isStart: i === 0 })),
+        ...group45.map((item) => ({ ...item, type: "45", isStart: false }))
+      ];
+
+      allPoints.forEach((pt) => {
+        const pos = polarToXY(pt.angle, 120);
+        const labelPos = polarToXY(pt.angle, 140);
+        const color = pt.type === "90" ? "#38bdf8" : "#f59e0b";
+
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", pos.x);
+        circle.setAttribute("cy", pos.y);
+        circle.setAttribute("r", pt.isStart ? "7.5" : "5.5");
+        circle.setAttribute("fill", color);
+        circle.setAttribute("stroke", pt.isStart ? "#34d399" : "#0f172a");
+        circle.setAttribute("stroke-width", pt.isStart ? "3" : "2");
+
+        const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+        title.textContent = `${fmtDeg(pt.angle)} (${pt.stepLabel})`;
+        circle.appendChild(title);
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", labelPos.x);
+        text.setAttribute("y", labelPos.y);
+        text.setAttribute("fill", pt.isStart ? "#34d399" : "#e2e8f0");
+        text.setAttribute("font-size", "11");
+        text.setAttribute("font-weight", pt.isStart ? "700" : "600");
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("dominant-baseline", "central");
+        text.textContent = fmtDeg(pt.angle);
+
+        pointsLayer.appendChild(circle);
+        pointsLayer.appendChild(text);
+      });
+
+      // Render 4 items in 90° category
+      list90.innerHTML = group90
+        .map(
+          (item) => `
+          <div class="angle-chip">
+            <span class="angle-val" style="color: var(--accent-90)">${fmtDeg(item.angle)}</span>
+            <span class="angle-meta">${item.stepLabel}</span>
+          </div>`
+        )
+        .join("");
+
+      // Render 4 items in 45° category (excluding 90° angles)
+      list45.innerHTML = group45
+        .map(
+          (item) => `
+          <div class="angle-chip">
+            <span class="angle-val" style="color: var(--accent-45)">${fmtDeg(item.angle)}</span>
+            <span class="angle-meta">${item.stepLabel}</span>
+          </div>`
+        )
+        .join("");
+
+      copy90.dataset.copy = group90.map((x) => fmtDeg(x.angle)).join(", ");
+      copy45.dataset.copy = group45.map((x) => fmtDeg(x.angle)).join(", ");
+    }
+
+    angleInput.addEventListener("input", (e) => {
+      const val = parseFloat(e.target.value);
+      rawAngle = Number.isFinite(val) ? val : 0;
+      render();
+    });
+
+    angleSlider.addEventListener("input", (e) => {
+      rawAngle = parseFloat(e.target.value);
+      angleInput.value = rawAngle;
+      render();
+    });
+
+    cwBtn.addEventListener("click", () => {
+      sign = 1;
+      cwBtn.classList.add("active");
+      cwBtn.setAttribute("aria-pressed", "true");
+      ccwBtn.classList.remove("active");
+      ccwBtn.setAttribute("aria-pressed", "false");
+      render();
+    });
+
+    ccwBtn.addEventListener("click", () => {
+      sign = -1;
+      ccwBtn.classList.add("active");
+      ccwBtn.setAttribute("aria-pressed", "true");
+      cwBtn.classList.remove("active");
+      cwBtn.setAttribute("aria-pressed", "false");
+      render();
+    });
+
+    async function handleCopy(btn, label) {
+      const text = btn.dataset.copy || "";
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.textContent = "Copied!";
+        setTimeout(() => {
+          btn.textContent = label;
+        }, 1200);
+      } catch {
+        btn.textContent = text;
+      }
+    }
+
+    copy90.addEventListener("click", () => handleCopy(copy90, "Copy 90° Angles"));
+    copy45.addEventListener("click", () => handleCopy(copy45, "Copy 45° Angles"));
+
+    renderTicks();
+    render();
+  </script>
+</body>
+</html>
